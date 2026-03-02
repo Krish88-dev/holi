@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Fixed Desktop View -->
+<meta name="viewport" content="width=1400, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 <title>Holi Celebration 2026</title>
 
 <style>
@@ -13,16 +16,23 @@ box-sizing:border-box;
 font-family:Segoe UI,sans-serif;
 }
 
-body{
+/* LOCK SCREEN SIZE */
+html,body{
+width:1400px;
+height:800px;
 overflow:hidden;
-height:100vh;
 background:black;
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
 color:white;
+touch-action:none;
 }
 
 /* animated gradient layer */
 .bg{
-position:fixed;
+position:absolute;
 width:100%;
 height:100%;
 background:linear-gradient(-45deg,#ff0055,#ff9900,#00ccff,#ff00cc);
@@ -91,7 +101,6 @@ display:none;
 position:absolute;
 width:100%;
 height:100%;
-display:flex;
 flex-direction:column;
 justify-content:center;
 align-items:center;
@@ -126,7 +135,7 @@ animation:fall linear forwards;
 
 @keyframes fall{
 to{
-transform:translateY(110vh);
+transform:translateY(800px);
 opacity:0;
 }
 }
@@ -137,6 +146,7 @@ position:absolute;
 width:8px;
 height:8px;
 border-radius:50%;
+pointer-events:none;
 animation:explode 1.2s forwards;
 }
 
@@ -147,7 +157,7 @@ opacity:0;
 }
 }
 
-/* mouse trail */
+/* mouse/touch trail */
 .trail{
 position:absolute;
 width:20px;
@@ -155,7 +165,7 @@ height:20px;
 border-radius:50%;
 pointer-events:none;
 background:radial-gradient(circle,white,transparent);
-animation:fade 1s forwards;
+animation:fade 0.6s forwards;
 }
 
 @keyframes fade{
@@ -166,6 +176,7 @@ transform:scale(3);
 }
 </style>
 </head>
+
 <body>
 
 <div class="bg"></div>
@@ -188,7 +199,18 @@ transform:scale(3);
 <script>
 const colors=["#ff0000","#ffff00","#00ffcc","#ff00ff","#ff8800","#00aaff"];
 
-// start celebration
+// Disable zoom
+window.addEventListener('wheel', function(e){
+if(e.ctrlKey) e.preventDefault();
+}, { passive: false });
+
+window.addEventListener('keydown', function(e){
+if((e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '='))){
+e.preventDefault();
+}
+});
+
+// Start celebration
 function start(){
 let name=document.getElementById("nameInput").value;
 if(name!=""){
@@ -197,48 +219,64 @@ document.getElementById("title").innerHTML="Happy Holi "+name+" 🎉";
 document.getElementById("intro").style.display="none";
 document.getElementById("main").style.display="flex";
 document.getElementById("music").play();
-fireworks();
+startFireworks();
 }
 
-// falling gulal
+// Falling particles
 function particle(){
 let p=document.createElement("div");
 p.className="particle";
-p.style.left=Math.random()*window.innerWidth+"px";
+p.style.left=Math.random()*1400+"px";
 p.style.background=colors[Math.floor(Math.random()*colors.length)];
 p.style.animationDuration=(3+Math.random()*4)+"s";
 document.body.appendChild(p);
 setTimeout(()=>p.remove(),7000);
 }
-setInterval(particle,80);
+setInterval(particle,100);
 
-// fireworks
-function fireworks(){
+// Fireworks engine
+function startFireworks(){
 setInterval(()=>{
-let x=Math.random()*window.innerWidth;
-let y=Math.random()*window.innerHeight;
-for(let i=0;i<20;i++){
+let x=Math.random()*1400;
+let y=Math.random()*800;
+firework(x,y);
+},2000);
+}
+
+// Firework burst
+function firework(x,y){
+for(let i=0;i<25;i++){
 let f=document.createElement("div");
 f.className="fire";
 f.style.left=x+"px";
 f.style.top=y+"px";
 f.style.background=colors[Math.floor(Math.random()*colors.length)];
-f.style.transform=`translate(${(Math.random()-0.5)*200}px,${(Math.random()-0.5)*200}px)`;
+f.style.transform=
+`translate(${(Math.random()-0.5)*200}px,
+${(Math.random()-0.5)*200}px)`;
 document.body.appendChild(f);
-setTimeout(()=>f.remove(),1200);
+setTimeout(()=>f.remove(),1000);
 }
-},1500);
 }
 
-// mouse glow trail
-document.addEventListener("mousemove",(e)=>{
+// Pointer events (Mouse + Touch unified)
+document.addEventListener("pointermove",(e)=>{
+createTrail(e.clientX,e.clientY);
+});
+
+document.addEventListener("pointerdown",(e)=>{
+firework(e.clientX,e.clientY);
+});
+
+// Trail creator
+function createTrail(x,y){
 let t=document.createElement("div");
 t.className="trail";
-t.style.left=e.clientX+"px";
-t.style.top=e.clientY+"px";
+t.style.left=x+"px";
+t.style.top=y+"px";
 document.body.appendChild(t);
-setTimeout(()=>t.remove(),1000);
-});
+setTimeout(()=>t.remove(),600);
+}
 </script>
 
 </body>
